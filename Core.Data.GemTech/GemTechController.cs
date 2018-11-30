@@ -40,7 +40,7 @@ namespace Core.Data.GemTech
                 var datas = new GemTechDataHandler(Request.Form.Keys,config)
                     .AddActionPipe(pipe.MonitorByTelegramApiAsync(Request))
                     .AddActionPipe(pipe.SaveSscDataToSqlServer)
-                    .AddActionPipe(pipe.PostToRedis(config.TestRedisApiUrl))
+                    .AddActionPipe(pipe.PostToRedis(config.TaocaiRedisApiUrl))
                     .Run();
                 return "OK";
             }
