@@ -25,7 +25,7 @@ namespace Core.Data.GemTech
         private readonly TelegramBot bot;
         private readonly ILogger<GemTechController> logger;
         private readonly Pipe pipe;
-        public GemTechController(ILogger<GemTechController> logger,GemTechConfig config,Pipe pipe)
+       public GemTechController(ILogger<GemTechController> logger,GemTechConfig config,Pipe pipe)
         {
             this.config = config;
             this.bot = config.TelegramBot;
@@ -40,7 +40,7 @@ namespace Core.Data.GemTech
                 var datas = new GemTechDataHandler(Request.Form.Keys,config)
                     .AddActionPipe(pipe.MonitorByTelegramApiAsync(Request))
                     .AddActionPipe(pipe.SaveSscDataToSqlServer)
-                    .AddActionPipe(pipe.PostToRedis(config.TaocaiRedisApiUrl))
+                    .AddActionPipe(pipe.MultiplePostToRedis)
                     .Run();
                 return "OK";
             }
@@ -50,7 +50,7 @@ namespace Core.Data.GemTech
                 if (bot.IsEnable)
                     await bot.SendMessageAsync(e.ToString());
             }
-            return "False";
+            return "Not Ok";
         }
     }
 }

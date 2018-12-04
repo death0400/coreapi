@@ -35,8 +35,8 @@ namespace Core.Data.Repository.CRUDApi.EntityKeyMap
         }
         public DbEntityRegiser<TContext> RegisterEntityType<T>() where T : class
         {
-            services.AddScoped<RepositoryFeatureProvider<T>>();
-            services.AddScoped<IRepository<T>>(provider =>
+            services.AddSingleton<RepositoryFeatureProvider<T>>();
+            services.AddSingleton<IRepository<T>>(provider =>
             {
                 return (IRepository<T>)Activator.CreateInstance(typeof(DbRepository<,>).MakeGenericType(new Type[] { typeof(T), EntityKeyDictionary.TypeDictionary[typeof(T)] }), provider.GetRequiredService<TContext>());
             });
@@ -54,8 +54,8 @@ namespace Core.Data.Repository.CRUDApi.EntityKeyMap
                 if (typeof(TContext).GetTypeInfo().Assembly != keyValuePair.Key.GetTypeInfo().Assembly)
                     continue;
                 var featureProviderType = typeof(RepositoryFeatureProvider<>).MakeGenericType(keyValuePair.Key);
-                services.AddScoped(featureProviderType);
-                services.AddScoped(typeof(IRepository<>).MakeGenericType(keyValuePair.Key), provider =>
+                services.AddSingleton(featureProviderType);
+                services.AddSingleton(typeof(IRepository<>).MakeGenericType(keyValuePair.Key), provider =>
                     Activator.CreateInstance(typeof(DbRepository<,>).MakeGenericType(keyValuePair.Key, keyValuePair.Value), provider.GetRequiredService<TContext>()));
                 MvcBuilder
                     .ConfigureApplicationPartManager(p =>

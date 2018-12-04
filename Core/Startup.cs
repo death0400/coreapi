@@ -14,6 +14,7 @@ using Core.Data.Repository.Probe.ReadRepository;
 using Core.Data.GemTech;
 using Db.CommomLotteryData.Models;
 using Microsoft.Extensions.Options;
+using Core.Data.GemTech.Model;
 
 namespace Core
 {
@@ -28,8 +29,11 @@ namespace Core
         {
             services
             .Configure<GemTechConfig>(Configuration)
-            .AddSingleton(sp => sp.GetRequiredService<IOptions<GemTechConfig>>().Value);
-
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<GemTechConfig>>().Value)
+            .AddScoped(p =>
+            {
+                return new RedisUrlCollection { Urls = Configuration.GetSection("RedisURL").AsEnumerable().Where(x => !string.IsNullOrWhiteSpace(x.Value)).Select(url => new Uri(url.Value.ToString())) };
+            });
             services.AddDbContext<Common_LotteryDataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CommomLotteryData")));
             services.AddMvc()
                .AddDbRepositoryWebApi<Common_LotteryDataContext>(register =>

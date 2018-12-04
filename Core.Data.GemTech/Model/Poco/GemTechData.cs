@@ -41,7 +41,7 @@ namespace Core.Data.GemTech.Model.Poco
             {
                 IssuseNumber ="20"+gemTechData.Data.Issue.Insert(6,"-"),
                 GameCode = gemTechData.Data.Lottery,
-                WinNumber = string.Join('.', gemTechData.Data.Code.Select(y => y)),
+                WinNumber = string.Join(',', gemTechData.Data.Code.Select(y => y)),
                 CreateTime = gemTechData.Time
             };
         }

@@ -18,11 +18,13 @@ namespace Core.Data.GemTech.Model
         private readonly GemTechConfig config;
         private readonly TelegramBot bot;
         private readonly Common_LotteryDataContext context;
-        public Pipe(GemTechConfig config, Common_LotteryDataContext context)
+        private readonly RedisUrlCollection redisUrls;
+        public Pipe(GemTechConfig config, Common_LotteryDataContext context, RedisUrlCollection redisUrls)
         {
             this.config = config;
             bot = this.config.TelegramBot;
             this.context = context;
+            this.redisUrls = redisUrls;
         }
 
         public Action<GemTechData[]> SaveSscDataToSqlServer => (datas) =>
@@ -85,19 +87,28 @@ namespace Core.Data.GemTech.Model
                             GameIssuse = datas.Select(x => GemTechData.ConvertToCqsscGameWinNumber(x))
                         });
                         var content = new StringContent(json, Encoding.UTF8, "application/json");
-                        var result = client.PostAsync(url, content).Result;
-                        var times = 0;
-                        while (result.StatusCode != System.Net.HttpStatusCode.OK && times < 5)
-                        {
-                            times++;
-                            Thread.Sleep(1000);
-                            result = client.PostAsync(url, content).Result;
-                        }
-                        if (times > 5)
-                            throw new Exception("push redis fault");
+                        //var result = client.PostAsync(url, content).Result;
+                        //var times = 0;
+                        //while (result.StatusCode != System.Net.HttpStatusCode.OK && times < 5)
+                        //{
+                        //    times++;
+                        //    Thread.Sleep(1000);
+                        //    result = client.PostAsync(url, content).Result;
+                        //}
+                        //if (times > 5)
+                        //    throw new Exception("push redis fault");
                     }
                 }
             };
+        };
+        public  Action<GemTechData[]> MultiplePostToRedis => (datas) =>
+        {
+                foreach (var url in redisUrls.Urls)
+                {
+                var gg = url.ToString();
+                     PostToRedis(url.ToString())(datas);
+                }
+            
         };
     }
 }
